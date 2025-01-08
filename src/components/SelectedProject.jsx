@@ -47,17 +47,21 @@ export default function SelectedProject() {
       projectsCtx.deleteProject(selectedProjectId);
       projectsCtx.selectProject("");
     } catch (error) {
-      console.log(error);
-      setActionError({
-        message:
-          error.message + " Please try again later" ||
-          "Unable to delete the project, please try again later.",
-      });
-
-      setTimeout(() => {
-        setActionError(null);
-      }, 5 * 1000);
+      handleActionError(error);
     }
+  }
+
+  function handleActionError(error) {
+    console.log(error);
+    setActionError({
+      message:
+        error.message + " Please try again later" ||
+        "Unable to complete the action, please try again later.",
+    });
+
+    setTimeout(() => {
+      setActionError(null);
+    }, 5 * 1000);
   }
 
   function handleEditProjectModal() {
@@ -81,7 +85,9 @@ export default function SelectedProject() {
   }
 
   if (loadingError) {
-    content = <Error title="An error ocurred!" message={loadingError.message} />;
+    content = (
+      <Error title="An error ocurred!" message={loadingError.message} />
+    );
   } else if (!selectedProjectId && !loadingError) {
     content = <NoProjectSelected />;
   } else if (selectedProjectId && !loadingError) {
@@ -111,7 +117,7 @@ export default function SelectedProject() {
         <section>
           <ul className="task-list">
             {selectedProject[0].tasks.map((task) => (
-              <TaskItem key={task.id} task={task} />
+              <TaskItem key={task.id} task={task} handleActionError={handleActionError}/>
             ))}
           </ul>
         </section>

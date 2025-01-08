@@ -104,13 +104,11 @@ app.delete("/projects/:id", async (req, res, next) => {
   const projectId = req.params.id;
   const projectsData = await fs.readFile("./data/projects.json", "utf-8");
   const projects = JSON.parse(projectsData);
-  const project = projects.find(
-    (project) => project.id === projectId
-  );
-  
-    if(!project) {
-      return next();
-    }
+  const project = projects.find((project) => project.id === projectId);
+
+  if (!project) {
+    return next();
+  }
   const updatedProjects = projects.filter(
     (project) => project.id !== projectId
   );
@@ -121,7 +119,7 @@ app.delete("/projects/:id", async (req, res, next) => {
     .json({ message: "Project deleted", id: projectId, ok: true });
 });
 
-app.delete("/projects/:id/:taskId", async (req, res) => {
+app.delete("/projects/:id/:taskId", async (req, res, next) => {
   const projectId = req.params.id;
   const taskId = req.params.taskId;
 
@@ -131,9 +129,18 @@ app.delete("/projects/:id/:taskId", async (req, res) => {
     (project) => project.id === projectId
   );
 
+  if (projectIndex === -1) {
+    return next();
+  }
+
   const taskIndex = updatedProjects[projectIndex].tasks.findIndex(
     (task) => task.id == taskId
   );
+
+  if (taskIndex === -1) {
+    return next();
+  }
+
   updatedProjects[projectIndex].tasks.splice(taskIndex, 1);
 
   await fs.writeFile("./data/projects.json", JSON.stringify(updatedProjects));
@@ -142,13 +149,12 @@ app.delete("/projects/:id/:taskId", async (req, res) => {
     .json({ message: "Task deleted", id: projectId, taskId: taskId, ok: true });
 });
 
-
 // 404
 app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return next();
   }
-  res.status(404).json({ message: 'The resource cannot be found.' });
+  res.status(404).json({ message: "The resource cannot be found." });
 });
 
 app.listen(3000);

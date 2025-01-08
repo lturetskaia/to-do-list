@@ -3,7 +3,7 @@ import Button from "./UI/Button";
 import ProjectsContext from "./store/ProjectContext";
 import { deleteTask, editProject } from "../http";
 
-export default function TaskItem({ task }) {
+export default function TaskItem({ task, handleActionError }) {
   const projectCtx = useContext(ProjectsContext);
   const [taskStatus, setTaskStatus] = useState(task.status);
 
@@ -29,7 +29,7 @@ export default function TaskItem({ task }) {
     }
   }
 
-  async function handleDeleteTask(taskId) {
+  async function handleDeleteTask() {
     console.log(
       "Deleting the task. ID:" +
         projectCtx.selectedProject +
@@ -40,11 +40,10 @@ export default function TaskItem({ task }) {
 
     try {
       const response = await deleteTask(projectCtx.selectedProject, task.id);
-      if (response.ok) {
         projectCtx.deleteTask(projectCtx.selectedProject, task.id);
-      }
     } catch (error) {
       console.log(error.message);
+      handleActionError(error);
     }
   }
 
