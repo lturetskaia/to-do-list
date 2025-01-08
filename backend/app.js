@@ -22,7 +22,7 @@ app.get("/projects", async (req, res) => {
     const projects = await fs.readFile("./data/projects.json", "utf-8");
     res.json(JSON.parse(projects));
   } catch (error) {
-    return res.status(404).json({ message: "Unable to fetch projects" });
+    res.status(404).json({ message: "Unable to fetch projects" });
   }
 });
 
@@ -100,10 +100,17 @@ app.put("/projects", async (req, res) => {
     .json({ message: "New project added!", id: newProject.id, ok: true });
 });
 
-app.delete("/projects/:id", async (req, res) => {
+app.delete("/projects/:id", async (req, res, next) => {
   const projectId = req.params.id;
   const projectsData = await fs.readFile("./data/projects.json", "utf-8");
   const projects = JSON.parse(projectsData);
+  const project = projects.find(
+    (project) => project.id === projectId
+  );
+  
+    if(!project) {
+      return next();
+    }
   const updatedProjects = projects.filter(
     (project) => project.id !== projectId
   );
@@ -137,11 +144,11 @@ app.delete("/projects/:id/:taskId", async (req, res) => {
 
 
 // 404
-// app.use((req, res, next) => {
-//   if (req.method === 'OPTIONS') {
-//     return next();
-//   }
-//   res.status(404).json({ message: '404 - Not Found' });
-// });
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  res.status(404).json({ message: 'The resource cannot be found.' });
+});
 
 app.listen(3000);

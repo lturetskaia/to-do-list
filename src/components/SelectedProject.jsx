@@ -24,11 +24,12 @@ export default function SelectedProject() {
         const allProjects = await fetchAllProjects();
         projectsCtx.loadAllProjects(allProjects);
         setIsFetching(false);
-
       } catch (error) {
+        console.log(error);
         setError({
           message:
-            error.message + ", please try again later" || "Could not fetch projects, please try again later."
+            error.message + " Please try again later" ||
+            "Could not fetch projects, please try again later.",
         });
         setIsFetching(false);
       }
@@ -36,17 +37,21 @@ export default function SelectedProject() {
 
     fetchProjects();
   }, []);
+
   async function handleDeleteProject() {
     try {
       const response = await deleteProject(selectedProjectId);
-      console.log(response);
 
-      if (response.ok) {
-        projectsCtx.deleteProject(response.id);
-        projectsCtx.selectProject("");
-      }
+      projectsCtx.deleteProject(selectedProjectId);
+      projectsCtx.selectProject("");
+      
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
+      // setError({
+      //   message:
+      //     error.message + " Please choose another project to delete or try again later" ||
+      //     "Unable to delete the project, please try again later.",
+      // });
     }
   }
 
@@ -56,20 +61,19 @@ export default function SelectedProject() {
 
   let content;
 
-  if (!selectedProjectId && error) {
-    
-    content = <Error title='An error ocurred!' message={error.message}/>;
+  if (error) {
+    content = <Error title="An error ocurred!" message={error.message} />;
   }
-
 
   if (!selectedProjectId && !error) {
     content = <NoProjectSelected />;
   }
+
   if (isFetching) {
-    content = <p>Loading your projects ...</p>
+    content = <p>Loading your projects ...</p>;
   }
 
-  if (selectedProjectId) {
+  if (selectedProjectId && !error) {
     const selectedProject = projectsCtx.projects.filter(
       (project) => project.id === selectedProjectId
     );

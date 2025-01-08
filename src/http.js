@@ -1,11 +1,7 @@
 export async function fetchAllProjects() {
   const response = await fetch("http://localhost:3000/projects");
   if (!response.ok) {
-    const error = new Error();
-    error.code = response.status;
-    const resData = await response.json();
-    error.message = resData.message;
-    throw error;
+    throw new Error("Failed to fetch projects.");
   }
   const allProjects = await response.json();
   return allProjects;
@@ -62,6 +58,7 @@ export async function deleteTask(id, taskId) {
 
   const resData = await response.json();
   console.log(resData);
+
   if (!response.ok) {
     throw new Error("Failed to delete the task.");
   }
@@ -98,13 +95,15 @@ export async function deleteProject(id) {
       "Content-Type": "application/json",
     },
   });
+  console.log(response);
+  if (!response.ok) {
+    console.log(response);
+  
+    throw new Error("Failed to delete the project.");
+  }
 
   const resData = await response.json();
   console.log(resData);
-
-  if (!response.ok) {
-    throw new Error("Failed to update the project.");
-  }
 
   return resData;
 }
