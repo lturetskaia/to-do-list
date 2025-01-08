@@ -14,8 +14,10 @@ export default function SelectedProject() {
   const selectedProjectId = projectsCtx.selectedProject;
   const modalCtx = useContext(ModalContext);
 
-  const [error, setError] = useState();
+  const [loadingError, setLoadingError] = useState();
   const [isFetching, setIsFetching] = useState();
+
+  const [actionError, setActionError] = useState();
 
   useEffect(() => {
     async function fetchProjects() {
@@ -26,7 +28,7 @@ export default function SelectedProject() {
         setIsFetching(false);
       } catch (error) {
         console.log(error);
-        setError({
+        setLoadingError({
           message:
             error.message + " Please try again later" ||
             "Could not fetch projects, please try again later.",
@@ -44,14 +46,17 @@ export default function SelectedProject() {
 
       projectsCtx.deleteProject(selectedProjectId);
       projectsCtx.selectProject("");
-      
     } catch (error) {
       console.log(error);
-      // setError({
-      //   message:
-      //     error.message + " Please choose another project to delete or try again later" ||
-      //     "Unable to delete the project, please try again later.",
-      // });
+      setActionError({
+        message:
+          error.message + " Please try again later" ||
+          "Unable to delete the project, please try again later.",
+      });
+
+      setTimeout(() => {
+        setActionError(null);
+      }, 5 * 1000);
     }
   }
 
@@ -59,24 +64,31 @@ export default function SelectedProject() {
     modalCtx.showEditProjectModal();
   }
 
+  //error on project actions
+
+  let errorClasses = "error-msg";
+  let errorMessage = "";
+  if (actionError) {
+    errorClasses += " visible";
+    errorMessage = actionError.message;
+  }
+
+  // Page content
   let content;
-
-  if (error) {
-    content = <Error title="An error ocurred!" message={error.message} />;
-  }
-
-  if (!selectedProjectId && !error) {
-    content = <NoProjectSelected />;
-  }
 
   if (isFetching) {
     content = <p>Loading your projects ...</p>;
   }
 
-  if (selectedProjectId && !error) {
+  if (loadingError) {
+    content = <Error title="An error ocurred!" message={loadingError.message} />;
+  } else if (!selectedProjectId && !loadingError) {
+    content = <NoProjectSelected />;
+  } else if (selectedProjectId && !loadingError) {
     const selectedProject = projectsCtx.projects.filter(
       (project) => project.id === selectedProjectId
     );
+
     content = (
       <>
         <header>
@@ -89,6 +101,7 @@ export default function SelectedProject() {
               <Button onClick={handleDeleteProject}>Delete</Button>
             </div>{" "}
           </div>
+          <p className={errorClasses}> {errorMessage}</p>
 
           <p>{selectedProject[0].description}</p>
         </header>

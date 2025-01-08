@@ -89,7 +89,7 @@ export async function deleteTask(id, taskId) {
 // }
 
 export async function deleteProject(id) {
-  const response = await fetch(`http://localhost:3000/projects/${id}`, {
+  const response = await fetch(`http://localhost:3000/projects/${id}s`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
