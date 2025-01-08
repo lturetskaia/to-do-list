@@ -135,11 +135,6 @@ app.delete("/projects/:id/:taskId", async (req, res) => {
     .json({ message: "Task deleted", id: projectId, taskId: taskId, ok: true });
 });
 
-// app.use(function (error, req, res, next) {
-//   res.status(500).json({
-//     message: 'Something went wrong!',
-//   });
-// });
 
 // 404
 // app.use((req, res, next) => {

@@ -76,7 +76,7 @@ export default function EditProject() {
       console.log("Editing the project ... ");
       const response = await editProject(selectedProject.id, projectData);
       console.log(response);
-      if (response.ok) {
+      if (response) {
         console.log(response.id);
         projectCtx.updateProject(selectedProject.id, projectData);
         modalCtx.hideProjectModal();
