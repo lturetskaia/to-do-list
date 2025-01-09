@@ -5,7 +5,7 @@ import Button from "./UI/Button";
 import ModalContext from "./store/ModalContext";
 import { addNewProject } from "../http";
 import ProjectsContext from "./store/ProjectContext";
-import { inputIsValid } from "./util/validation";
+import { inputIsNotValid } from "./util/validation";
 
 export default function NewProject() {
   const modalCtx = useContext(ModalContext);
@@ -13,21 +13,23 @@ export default function NewProject() {
 
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
-  const [error, setError] = useState({ status: true, message: "" });
+  const [inputError, setInputError] = useState({ status: true, message: "" });
+
   const [isPending, setIsPending] = useState();
+  const [loadingError, setLoadingError] = useState();
 
   function handleChangeInput(event) {
     setProjectName(event.target.value);
 
-    if (inputIsValid(event.target.value, 3, 20)) {
-      setError(() => {
+    if (inputIsNotValid(event.target.value, 3, 20)) {
+      setInputError(() => {
         return {
           status: true,
           message: "Project name should contain 3-20 characters.",
         };
       });
     } else {
-      setError(() => {
+      setInputError(() => {
         return { status: false, message: "" };
       });
     }
@@ -55,16 +57,17 @@ export default function NewProject() {
       const response = await addNewProject(projectData);
       console.log(response);
 
-      if (response.ok) {
-        console.log(response.id);
-        const project = { id: response.id, ...projectData };
-        projectCtx.addNewProject(project);
-        projectCtx.selectProject(response.id);
-        modalCtx.hideProjectModal();
-        setIsPending(false);
-      }
+      const project = { id: response.id, ...projectData };
+      projectCtx.addNewProject(project);
+      projectCtx.selectProject(response.id);
+      modalCtx.hideProjectModal();
+      setIsPending(false);
     } catch (error) {
       console.log(error.message);
+      setIsPending(false);
+      setLoadingError(() => {
+        return { status: true, message: "Failed to add a new project" };
+      });
     }
 
     // add error management
@@ -73,25 +76,21 @@ export default function NewProject() {
   function handleCloseModal() {
     setProjectName("");
     setProjectDescription("");
-    setError(() => {
+    setInputError(() => {
       return { status: true, message: "" };
     });
+    setLoadingError("");
 
     modalCtx.hideProjectModal();
   }
 
-  let content = (
-    <p className="form-control-btn">
-      <Button onClick={handleCloseModal} type="button">
-        Cancel
-      </Button>
-      <Button className="filled-btn" type="submit" disabled={error.status}>
-        Save
-      </Button>
-    </p>
-  );
+  let content;
+
   if (isPending) {
     content = <p className="form-control-btn">Saving the project ...</p>;
+  } else if (loadingError) {
+
+    content = <p className="error-msg visible">Failed to save the project</p>;
   }
 
   return (
@@ -106,7 +105,7 @@ export default function NewProject() {
             label="Project name"
             name="projectName"
             type="text"
-            errorMsg={error.message}
+            errorMsg={inputError.message}
             value={projectName}
             onChange={handleChangeInput}
           />
@@ -122,6 +121,18 @@ export default function NewProject() {
           />
         </div>
 
+        <p className="form-control-btn">
+          <Button onClick={handleCloseModal} type="button">
+            Cancel
+          </Button>
+          <Button
+            className="filled-btn"
+            type="submit"
+            disabled={inputError.status}
+          >
+            Save
+          </Button>
+        </p>
         {content}
       </form>
     </Modal>

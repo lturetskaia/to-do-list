@@ -16,8 +16,8 @@ app.use((req, res, next) => {
   next();
 });
 
+// Fetch all projects
 app.get("/projects", async (req, res) => {
-  // Fetch all projects
   try {
     const projects = await fs.readFile("./data/projects.json", "utf-8");
     res.json(JSON.parse(projects));
@@ -26,18 +26,26 @@ app.get("/projects", async (req, res) => {
   }
 });
 
-app.put("/projects/:id", async (req, res) => {
-  // Update project data
+// Update project data
+app.put("/projects/:id", async (req, res, next) => {
   const projectId = req.params.id;
   const projectData = req.body.projectData;
-  if (projectData === null) {
+
+  // error- no project data sent
+  if (!projectData) {
     return res.status(400).json({ message: "Missing Data!" });
   }
+
   const allProjectsData = await fs.readFile("./data/projects.json", "utf-8");
   const allProjects = JSON.parse(allProjectsData);
   const projectIndex = allProjects.findIndex(
     (project) => project.id === projectId
   );
+
+  // error- wrong project id
+  if (projectIndex === -1) {
+    return next();
+  }
 
   if (projectData.task) {
     // Add a new task
@@ -49,42 +57,58 @@ app.put("/projects/:id", async (req, res) => {
     };
     const updatedTasks = [...allProjects[projectIndex].tasks, newTask];
     allProjects[projectIndex].tasks = [...updatedTasks];
-    await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
-    return res.status(201).json({
-      message: `Tasks updated`,
-      taskId: newTask.id,
-      ok: true,
-    });
+
+    try {
+      await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
+
+      return res.status(201).json({
+        message: `Tasks updated`,
+        taskId: newTask.id,
+      });
+    } catch (error) {
+      res.status(404).json({ message: "Unable to add a new task" });
+    }
   } else if (projectData.status && projectData.taskId) {
+    // change status - active or completed
     const updatedTasks = allProjects[projectIndex].tasks.map((task) =>
       task.id === projectData.taskId
         ? { ...task, status: projectData.status }
         : task
     );
     allProjects[projectIndex].tasks = [...updatedTasks];
-    await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
-    return res.status(201).json({
-      message: `Task ${projectData.taskId} updated`,
-      projectId: projectId,
-      tasks: updatedTasks,
-      ok: true,
-    });
+
+    try {
+      await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
+      return res.status(201).json({
+        message: `Task ${projectData.taskId} updated`,
+        projectId: projectId,
+        tasks: updatedTasks,
+      });
+    } catch (error) {
+      res.status(404).json({ message: "Unable to change task status" });
+    }
   } else if (projectData.description) {
-    // Update project name and description
+    // Update project name and/or description
     allProjects[projectIndex].name = projectData.name;
     allProjects[projectIndex].description = projectData.description;
-    await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
-    return res.status(201).json({
-      message: `Project ${projectIndex} edited`,
-      id: projectId,
-      ok: true,
-    });
+
+    try {
+      await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
+      return res.status(201).json({
+        message: `Project ${projectIndex} edited`,
+        id: projectId,
+      });
+    } catch (error) {
+      res
+        .status(404)
+        .json({ message: "Unable to change project name or description." });
+    }
   }
 });
 
 app.put("/projects", async (req, res) => {
   const projectData = req.body.newProject;
-  if (projectData === null || !projectData.name) {
+  if (!projectData || !projectData.name) {
     return res.status(400).json({ message: "Missing Data!" });
   }
   const newProject = {
@@ -94,10 +118,15 @@ app.put("/projects", async (req, res) => {
   const projects = await fs.readFile("./data/projects.json", "utf-8");
   const allProjects = JSON.parse(projects);
   allProjects.push(newProject);
-  await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
-  return res
-    .status(201)
-    .json({ message: "New project added!", id: newProject.id, ok: true });
+
+  try {
+    await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
+    return res
+      .status(201)
+      .json({ message: "New project added!", id: newProject.id });
+  } catch (error) {
+    res.status(404).json({ message: "Unable to add a new project." });
+  }
 });
 
 app.delete("/projects/:id", async (req, res, next) => {

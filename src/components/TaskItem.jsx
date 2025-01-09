@@ -21,11 +21,10 @@ export default function TaskItem({ task, handleActionError }) {
       console.log("Updating task status" + data);
       const response = await editProject(projectCtx.selectedProject, data);
       console.log(response);
-      if (response.ok) {
-        setTaskStatus(status);
-      }
+      setTaskStatus(status);
     } catch (error) {
       console.log(error.message);
+      handleActionError(error);
     }
   }
 
@@ -40,7 +39,7 @@ export default function TaskItem({ task, handleActionError }) {
 
     try {
       const response = await deleteTask(projectCtx.selectedProject, task.id);
-        projectCtx.deleteTask(projectCtx.selectedProject, task.id);
+      projectCtx.deleteTask(projectCtx.selectedProject, task.id);
     } catch (error) {
       console.log(error.message);
       handleActionError(error);

@@ -112,7 +112,7 @@ export default function SelectedProject() {
           <p>{selectedProject[0].description}</p>
         </header>
 
-        <TaskInput />
+        <TaskInput handleActionError={handleActionError}/>
 
         <section>
           <ul className="task-list">

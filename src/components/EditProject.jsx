@@ -69,18 +69,16 @@ export default function EditProject() {
     console.log(formData.projectDescription);
     const projectData = {
       name: formData.projectName,
-      description: formData.projectDescription || '',
+      description: formData.projectDescription || "",
     };
 
     try {
       console.log("Editing the project ... ");
       const response = await editProject(selectedProject.id, projectData);
       console.log(response);
-      if (response) {
-        console.log(response.id);
-        projectCtx.updateProject(selectedProject.id, projectData);
-        modalCtx.hideProjectModal();
-      }
+
+      projectCtx.updateProject(selectedProject.id, projectData);
+      modalCtx.hideProjectModal();
     } catch (error) {
       console.log(error.message);
     }

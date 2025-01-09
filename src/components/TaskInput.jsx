@@ -1,17 +1,17 @@
 import { useEffect, useState, useContext } from "react";
 import ProjectsContext from "./store/ProjectContext";
 import { editProject } from "../http";
-import { inputIsValid } from "./util/validation";
+import { inputIsNotValid } from "./util/validation";
 
 import Button from "./UI/Button";
 import Input from "./UI/Input";
 
-export default function TaskInput() {
+export default function TaskInput({ handleActionError }) {
   const projectCtx = useContext(ProjectsContext);
   const selectedProjectId = projectCtx.selectedProject;
 
   const [userTask, setUserTask] = useState("");
-  const [error, setError] = useState({ status: true, message: "" });
+  const [error, setError] = useState({ status: true, message: "" }); // input error
   const [isPending, setIsPending] = useState();
 
   useEffect(() => {
@@ -20,8 +20,8 @@ export default function TaskInput() {
 
   function handleChangeTask(event) {
     setUserTask(event.target.value);
-    
-    if (inputIsValid(event.target.value, 3, 70)) {
+
+    if (inputIsNotValid(event.target.value, 3, 70)) {
       setError(() => {
         return {
           status: true,
@@ -51,25 +51,20 @@ export default function TaskInput() {
       console.log("Trying to add a new task");
       const response = await editProject(selectedProjectId, newTask);
 
-      if (response.ok) {
-        newTask.task.id = response.taskId;
-        projectCtx.addNewTask(selectedProjectId, newTask);
+      newTask.task.id = response.taskId;
+      projectCtx.addNewTask(selectedProjectId, newTask);
 
-        
-        setUserTask("");
-        setIsPending(false);
-        setError(() => {
-          return { status: true, message: "" };
-        });
-      }
+      setUserTask("");
     } catch (error) {
-      console.log(error.message);
+      handleActionError(error);
+    } finally {
+      setIsPending(false);
     }
   }
 
   return (
     <form onSubmit={handleSubmitTask} className="control-task-area">
-      <Button className={"filled-btn"} type="submit" disabled={error.status || isPending }>
+      <Button className={"filled-btn"} type="submit" disabled={isPending}>
         +
       </Button>
       <div className="control-task-input">
