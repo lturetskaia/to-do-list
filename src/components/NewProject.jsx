@@ -80,6 +80,7 @@ export default function NewProject() {
       return { status: true, message: "" };
     });
     setLoadingError("");
+    console.log(modalCtx);
 
     modalCtx.hideProjectModal();
   }
@@ -97,7 +98,7 @@ export default function NewProject() {
     <Modal
       className="modal"
       open={modalCtx.state === "newProject"}
-      onClose={modalCtx.state === "newProject" ? null : handleCloseModal}
+      onClose={handleCloseModal}
     >
       <form onSubmit={handleCreateProject}>
         <div className="control-input">

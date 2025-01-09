@@ -16,7 +16,7 @@ export async function fetchAllProjects() {
 
 export async function addNewProject(newProject) {
   try {
-    const response = await fetch("http://localhost:3000/projectss", {
+    const response = await fetch("http://localhost:3000/projects", {
       method: "PUT",
       body: JSON.stringify({ newProject }),
       headers: {

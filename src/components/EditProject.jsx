@@ -86,7 +86,6 @@ export default function EditProject() {
   }
 
   function handleCloseModal() {
-    modalCtx.hideProjectModal();
     setError(() => {
       return { status: false, message: "" };
     });
@@ -94,6 +93,7 @@ export default function EditProject() {
       name: selectedProject.name,
       description: selectedProject.description,
     });
+    modalCtx.hideProjectModal();
   }
 
   return (
@@ -131,6 +131,7 @@ export default function EditProject() {
             Save
           </Button>
         </p>
+        <p className="error-msg visible">Failed to save the project</p>
       </form>
     </Modal>
   );
