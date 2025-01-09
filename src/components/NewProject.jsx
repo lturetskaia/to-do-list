@@ -61,13 +61,13 @@ export default function NewProject() {
       projectCtx.addNewProject(project);
       projectCtx.selectProject(response.id);
       modalCtx.hideProjectModal();
-      setIsPending(false);
     } catch (error) {
       console.log(error.message);
-      setIsPending(false);
       setLoadingError(() => {
         return { status: true, message: "Failed to add a new project" };
       });
+    } finally {
+      setIsPending(false);
     }
 
     // add error management
@@ -85,13 +85,17 @@ export default function NewProject() {
     modalCtx.hideProjectModal();
   }
 
-  let content;
+  let saveBtnText = "Save";
 
   if (isPending) {
-    content = <p className="form-control-btn">Saving the project ...</p>;
-  } else if (loadingError) {
+    saveBtnText = "Saving ...";
+  }
 
-    content = <p className="error-msg visible">Failed to save the project</p>;
+  let errorMessage;
+  if (loadingError) {
+    errorMessage = (
+      <p className="error-msg visible">Failed to save the project</p>
+    );
   }
 
   return (
@@ -122,19 +126,21 @@ export default function NewProject() {
           />
         </div>
 
-        <p className="form-control-btn">
-          <Button onClick={handleCloseModal} type="button">
-            Cancel
-          </Button>
-          <Button
-            className="filled-btn"
-            type="submit"
-            disabled={inputError.status || isPending}
-          >
-            Save
-          </Button>
-        </p>
-        {content}
+        <div className="control-input">
+          <p className="form-control-btn">
+            <Button onClick={handleCloseModal} type="button">
+              Cancel
+            </Button>
+            <Button
+              className="filled-btn"
+              type="submit"
+              disabled={inputError.status || isPending}
+            >
+              {saveBtnText}
+            </Button>
+          </p>
+          {errorMessage}
+        </div>
       </form>
     </Modal>
   );

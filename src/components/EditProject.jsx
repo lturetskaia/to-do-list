@@ -109,12 +109,14 @@ export default function EditProject() {
     modalCtx.hideProjectModal();
   }
 
-  let content;
+  let saveBtnText = 'Save';
   if (isPending) {
-    content = <p className="form-control-btn">Saving the changes...</p>;
+    saveBtnText = 'Saving ...';
 
-  } else if (loadingError) {
-    content = (
+  } 
+  let errorMessage; 
+  if (loadingError) {
+    errorMessage = (
       <p className="error-msg visible">Failed to save the project</p>
     );
   }
@@ -156,10 +158,10 @@ export default function EditProject() {
               type="submit"
               disabled={inputError.status || isPending}
             >
-              Save
+              {saveBtnText}
             </Button>
           </p>
-          {content}
+          {errorMessage}
         </div>
       </form>
     </Modal>

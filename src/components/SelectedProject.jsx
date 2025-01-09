@@ -16,6 +16,7 @@ export default function SelectedProject() {
 
   const [loadingError, setLoadingError] = useState();
   const [isFetching, setIsFetching] = useState();
+  const [isPendingDelete, setIsPendingDelete] = useState(false);
 
   const [actionError, setActionError] = useState();
 
@@ -25,7 +26,6 @@ export default function SelectedProject() {
       try {
         const allProjects = await fetchAllProjects();
         projectsCtx.loadAllProjects(allProjects);
-        setIsFetching(false);
       } catch (error) {
         console.log(error);
         setLoadingError({
@@ -33,6 +33,7 @@ export default function SelectedProject() {
             error.message + " Please try again later" ||
             "Could not fetch projects, please try again later.",
         });
+      } finally {
         setIsFetching(false);
       }
     }
@@ -41,6 +42,7 @@ export default function SelectedProject() {
   }, []);
 
   async function handleDeleteProject() {
+    setIsPendingDelete(true);
     try {
       const response = await deleteProject(selectedProjectId);
 
@@ -48,6 +50,8 @@ export default function SelectedProject() {
       projectsCtx.selectProject("");
     } catch (error) {
       handleActionError(error);
+    } finally {
+      setIsPendingDelete(false);
     }
   }
 
@@ -77,14 +81,18 @@ export default function SelectedProject() {
     errorMessage = actionError.message;
   }
 
+  //delete btn text
+  let deleteBtnText = "Delete";
+  if (isPendingDelete) {
+    deleteBtnText = "Deleting...";
+  }
+
   // Page content
   let content;
 
   if (isFetching) {
     content = <p>Loading your projects ...</p>;
-  }
-
-  if (loadingError) {
+  } else if (loadingError) {
     content = (
       <Error title="An error ocurred!" message={loadingError.message} />
     );
@@ -104,7 +112,9 @@ export default function SelectedProject() {
               <Button className="filled-btn" onClick={handleEditProjectModal}>
                 Edit
               </Button>
-              <Button onClick={handleDeleteProject}>Delete</Button>
+              <Button onClick={handleDeleteProject} disabled={isPendingDelete}>
+                {deleteBtnText}
+              </Button>
             </div>{" "}
           </div>
           <p className={errorClasses}> {errorMessage}</p>
@@ -112,12 +122,16 @@ export default function SelectedProject() {
           <p>{selectedProject[0].description}</p>
         </header>
 
-        <TaskInput handleActionError={handleActionError}/>
+        <TaskInput handleActionError={handleActionError} />
 
         <section>
           <ul className="task-list">
             {selectedProject[0].tasks.map((task) => (
-              <TaskItem key={task.id} task={task} handleActionError={handleActionError}/>
+              <TaskItem
+                key={task.id}
+                task={task}
+                handleActionError={handleActionError}
+              />
             ))}
           </ul>
         </section>
