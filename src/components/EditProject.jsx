@@ -20,8 +20,10 @@ export default function EditProject() {
     name: "",
     description: "",
   });
+  const [inputError, setInputError] = useState({ status: false, message: "" });
 
-  const [error, setError] = useState({ status: false, message: "" });
+  const [loadingError, setLoadingError] = useState();
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     setEditedProject({
@@ -40,14 +42,14 @@ export default function EditProject() {
     });
     //input validation
     if (event.target.value.length < 3 || event.target.value.length > 20) {
-      setError(() => {
+      setInputError(() => {
         return {
           status: true,
           message: "Project name should contain 3-16 characters.",
         };
       });
     } else {
-      setError(() => {
+      setInputError(() => {
         return { status: false, message: "" };
       });
     }
@@ -64,6 +66,8 @@ export default function EditProject() {
 
   async function handleEditProject(event) {
     event.preventDefault();
+    setIsPending(true);
+
     const fd = new FormData(event.target);
     const formData = Object.fromEntries(fd.entries());
     console.log(formData.projectDescription);
@@ -74,26 +78,45 @@ export default function EditProject() {
 
     try {
       console.log("Editing the project ... ");
+
       const response = await editProject(selectedProject.id, projectData);
       console.log(response);
 
       projectCtx.updateProject(selectedProject.id, projectData);
       modalCtx.hideProjectModal();
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
+      setLoadingError(() => {
+        return { status: true, message: error.message };
+      });
+    } finally {
+      setIsPending(false);
     }
     // add error management
   }
 
   function handleCloseModal() {
-    setError(() => {
+    setInputError(() => {
       return { status: false, message: "" };
     });
     setEditedProject({
       name: selectedProject.name,
       description: selectedProject.description,
     });
+    setLoadingError();
+    setIsPending(false);
+
     modalCtx.hideProjectModal();
+  }
+
+  let content;
+  if (isPending) {
+    content = <p className="form-control-btn">Saving the changes...</p>;
+
+  } else if (loadingError) {
+    content = (
+      <p className="error-msg visible">Failed to save the project</p>
+    );
   }
 
   return (
@@ -110,7 +133,7 @@ export default function EditProject() {
             type="text"
             value={editedProject.name}
             onChange={handleChangeName}
-            errorMsg={error.message}
+            errorMsg={inputError.message}
           />
         </div>
 
@@ -123,15 +146,21 @@ export default function EditProject() {
             onChange={handleChangeDescription}
           />
         </div>
-        <p className="form-control-btn">
-          <Button onClick={handleCloseModal} type="button">
-            Cancel
-          </Button>
-          <Button className="filled-btn" type="submit" disabled={error.status}>
-            Save
-          </Button>
-        </p>
-        <p className="error-msg visible">Failed to save the project</p>
+        <div className="control-input">
+          <p className="form-control-btn">
+            <Button onClick={handleCloseModal} type="button">
+              Cancel
+            </Button>
+            <Button
+              className="filled-btn"
+              type="submit"
+              disabled={inputError.status || isPending}
+            >
+              Save
+            </Button>
+          </p>
+          {content}
+        </div>
       </form>
     </Modal>
   );

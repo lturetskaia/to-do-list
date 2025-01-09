@@ -39,7 +39,7 @@ export async function addNewProject(newProject) {
 
 export async function editProject(id, projectData) {
   try {
-    const response = await fetch(`http://localhost:3000/projects/${id}`, {
+    const response = await fetch(`http://localhost:3000/projects/${11}`, {
       method: "PUT",
       body: JSON.stringify({ projectData }),
       headers: {

@@ -129,7 +129,7 @@ export default function NewProject() {
           <Button
             className="filled-btn"
             type="submit"
-            disabled={inputError.status}
+            disabled={inputError.status || isPending}
           >
             Save
           </Button>
