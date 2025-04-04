@@ -1,1 +1,1 @@
-This is a simple to-do app. 
+This is a simple to-do app which helps to track projects and tasks. 
