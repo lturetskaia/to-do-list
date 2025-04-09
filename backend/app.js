@@ -1,8 +1,13 @@
 import fs from "node:fs/promises";
-
 import bodyParser from "body-parser";
 import express from "express";
-import { v4 as uuidv4 } from "uuid";
+
+import {
+  createProject,
+  createTask,
+  getAllProjects,
+  getAllTasks,
+} from "./util/db-query,js";
 
 const app = express();
 
@@ -18,10 +23,23 @@ app.use((req, res, next) => {
 
 // Fetch all projects
 app.get("/projects", async (req, res) => {
-  try {
-    const projects = await fs.readFile("./data/projects.json", "utf-8");
-    res.json(JSON.parse(projects));
-  } catch (error) {
+  const projects = await getAllProjects();
+  const tasks = await getAllTasks();
+
+  if (projects && tasks) {
+    console.log(projects, tasks);
+    const allProjectsData = [...projects];
+    allProjectsData.map((project) => (project.tasks = []));
+
+    tasks.forEach((task) => {
+      const projectIndex = projects.findIndex(
+        (project) => project.id === task.project_id
+      );
+      allProjectsData[projectIndex].tasks.push(task);
+    });
+
+    res.json(allProjectsData);
+  } else {
     res.status(404).json({ message: "Unable to fetch projects" });
   }
 });
@@ -36,40 +54,31 @@ app.put("/projects/:id", async (req, res, next) => {
     return res.status(400).json({ message: "Missing Data!" });
   }
 
-  const allProjectsData = await fs.readFile("./data/projects.json", "utf-8");
-  const allProjects = JSON.parse(allProjectsData);
-  const projectIndex = allProjects.findIndex(
-    (project) => project.id === projectId
-  );
+  // !! check if the project exists !!
 
-  // error- wrong project id
-  if (projectIndex === -1) {
-    return next();
-  }
-
+  // Add a new task
   if (projectData.task) {
-    // Add a new task
+    console.log(projectData);
+
     const newTask = {
-      id: uuidv4(),
-      name: projectData.task.name,
-      date: projectData.task.date,
-      status: projectData.task.status,
+      ...projectData.task,
+      project_id: projectId,
     };
-    const updatedTasks = [...allProjects[projectIndex].tasks, newTask];
-    allProjects[projectIndex].tasks = [...updatedTasks];
 
-    try {
-      await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
+    const result = await createTask(newTask);
+    console.log(result);
 
+    if (result.insertId > 0) {
       return res.status(201).json({
         message: `Tasks updated`,
-        taskId: newTask.id,
+        taskId: result.insertId,
       });
-    } catch (error) {
+    } else {
       res.status(404).json({ message: "Unable to add a new task" });
     }
   } else if (projectData.status && projectData.taskId) {
     // change status - active or completed
+    
     const updatedTasks = allProjects[projectIndex].tasks.map((task) =>
       task.id === projectData.taskId
         ? { ...task, status: projectData.status }
@@ -106,29 +115,25 @@ app.put("/projects/:id", async (req, res, next) => {
   }
 });
 
+// Add a new project
 app.put("/projects", async (req, res) => {
   const projectData = req.body.newProject;
   if (!projectData || !projectData.name) {
     return res.status(400).json({ message: "Missing Data!" });
   }
-  const newProject = {
-    id: uuidv4(),
-    ...projectData,
-  };
-  const projects = await fs.readFile("./data/projects.json", "utf-8");
-  const allProjects = JSON.parse(projects);
-  allProjects.push(newProject);
 
-  try {
-    await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
+  const result = await createProject(projectData);
+
+  if (result.insertId > 0) {
     return res
       .status(201)
-      .json({ message: "New project added!", id: newProject.id });
-  } catch (error) {
+      .json({ message: "New project added!", id: result.insertId });
+  } else {
     res.status(404).json({ message: "Unable to add a new project." });
   }
 });
 
+// Delete a project
 app.delete("/projects/:id", async (req, res, next) => {
   const projectId = req.params.id;
   const projectsData = await fs.readFile("./data/projects.json", "utf-8");
@@ -148,6 +153,7 @@ app.delete("/projects/:id", async (req, res, next) => {
     .json({ message: "Project deleted", id: projectId, ok: true });
 });
 
+// Delete a task
 app.delete("/projects/:id/:taskId", async (req, res, next) => {
   const projectId = req.params.id;
   const taskId = req.params.taskId;

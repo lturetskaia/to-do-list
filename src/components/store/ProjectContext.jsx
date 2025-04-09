@@ -2,7 +2,7 @@ import { createContext, useEffect, useReducer } from "react";
 import { fetchAllProjects } from "../../http";
 
 const ProjectsContext = createContext({
-  selectedProject: "",
+  selectedProject: null,
   projects: [],
   loadAllProjects: () => {},
   selectProject: () => {},
