@@ -10,6 +10,7 @@ import {
   updateTaskStatus,
   updateProject,
   deleteItem,
+  deleteAllTasks,
 } from "./util/db-query,js";
 
 const app = express();
@@ -39,7 +40,11 @@ app.get("/projects", async (req, res) => {
         (project) => project.id === task.project_id
       );
       console.log(projectIndex);
-      allProjectsData[projectIndex].tasks.push(task);
+      if (projectIndex >= 0) {
+        allProjectsData[projectIndex].tasks.push(task);
+      } else {
+        console.log("Error! Undeleted tasks found!");
+      }
     });
 
     res.json(allProjectsData);
@@ -142,7 +147,7 @@ app.delete("/projects/:id", async (req, res, next) => {
   const projectId = req.params.id;
   const resultProjects = await deleteItem(projectId, "projects");
   //delete all task associated with the projectId
-  const resultTasks = await deleteItem(taskId, "tasks");
+  const resultTasks = await deleteAllTasks(projectId);
 
   if (resultProjects.affectedRows === 1) {
     return res
