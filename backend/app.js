@@ -11,7 +11,7 @@ import {
   updateProject,
   deleteItem,
   deleteAllTasks,
-} from "./util/db-query,js";
+} from "./util/db-query.js";
 
 const app = express();
 
