@@ -28,7 +28,8 @@ app.use((req, res, next) => {
 app.get("/projects", async (req, res) => {
   const projects = await getAllProjects();
   const tasks = await getAllTasks();
-
+  console.log(projects);
+  console.log(tasks);
   if (projects && tasks) {
     const allProjectsData = [...projects];
     allProjectsData.map((project) => (project.tasks = []));
@@ -37,6 +38,7 @@ app.get("/projects", async (req, res) => {
       const projectIndex = projects.findIndex(
         (project) => project.id === task.project_id
       );
+      console.log(projectIndex);
       allProjectsData[projectIndex].tasks.push(task);
     });
 
@@ -138,9 +140,11 @@ app.put("/projects", async (req, res) => {
 // Delete a project
 app.delete("/projects/:id", async (req, res, next) => {
   const projectId = req.params.id;
-  const result = await deleteItem(projectId, "projects");
+  const resultProjects = await deleteItem(projectId, "projects");
+  //delete all task associated with the projectId
+  const resultTasks = await deleteItem(taskId, "tasks");
 
-  if (result.affectedRows === 1) {
+  if (resultProjects.affectedRows === 1) {
     return res
       .status(200)
       .json({ message: "Project deleted", id: projectId, ok: true });
