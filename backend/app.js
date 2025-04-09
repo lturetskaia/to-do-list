@@ -7,6 +7,10 @@ import {
   createTask,
   getAllProjects,
   getAllTasks,
+  getTask,
+  updateTaskStatus,
+  updateProject,
+  deleteItem,
 } from "./util/db-query,js";
 
 const app = express();
@@ -78,40 +82,43 @@ app.put("/projects/:id", async (req, res, next) => {
     }
   } else if (projectData.status && projectData.taskId) {
     // change status - active or completed
-    
-    const updatedTasks = allProjects[projectIndex].tasks.map((task) =>
-      task.id === projectData.taskId
-        ? { ...task, status: projectData.status }
-        : task
-    );
-    allProjects[projectIndex].tasks = [...updatedTasks];
 
-    try {
-      await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
+    // !! check if the task exists !!
+
+    const result = await updateTaskStatus(
+      projectData.taskId,
+      projectData.status
+    );
+    console.log(result);
+    if (result.changedRows === 1) {
+      const updatedTask = await getTask(projectData.taskId);
       return res.status(201).json({
         message: `Task ${projectData.taskId} updated`,
         projectId: projectId,
-        tasks: updatedTasks,
+        tasks: updatedTask,
       });
-    } catch (error) {
+    } else {
       res.status(404).json({ message: "Unable to change task status" });
     }
   } else if (projectData.description) {
     // Update project name and/or description
-    allProjects[projectIndex].name = projectData.name;
-    allProjects[projectIndex].description = projectData.description;
+    const result = await updateProject(
+      projectId,
+      projectData.name,
+      projectData.description
+    );
 
-    try {
-      await fs.writeFile("./data/projects.json", JSON.stringify(allProjects));
+    if (result.changedRows === 1) {
       return res.status(201).json({
-        message: `Project ${projectIndex} edited`,
+        message: `Project ${projectId} edited`,
         id: projectId,
       });
-    } catch (error) {
+    } else {
       res
         .status(404)
         .json({ message: "Unable to change project name or description." });
     }
+    console.log(result);
   }
 });
 
@@ -136,21 +143,20 @@ app.put("/projects", async (req, res) => {
 // Delete a project
 app.delete("/projects/:id", async (req, res, next) => {
   const projectId = req.params.id;
-  const projectsData = await fs.readFile("./data/projects.json", "utf-8");
-  const projects = JSON.parse(projectsData);
-  const project = projects.find((project) => project.id === projectId);
+  const result = await deleteItem(projectId, "projects");
+  console.log(result);
 
-  if (!project) {
-    return next();
+  if (result.affectedRows === 1) {
+    return res
+      .status(200)
+      .json({ message: "Project deleted", id: projectId, ok: true });
+  } else {
+    res.status(404).json({ message: "Failed to delete the selected project." });
   }
-  const updatedProjects = projects.filter(
-    (project) => project.id !== projectId
-  );
-  await fs.writeFile("./data/projects.json", JSON.stringify(updatedProjects));
 
-  return res
-    .status(200)
-    .json({ message: "Project deleted", id: projectId, ok: true });
+  // if (!project) {
+  //   return next();
+  // }
 });
 
 // Delete a task

@@ -8,6 +8,7 @@ export async function fetchAllProjects() {
       throw new Error(resError.message || "Failed to fetch projects.");
     }
     const allProjects = await response.json();
+    console.log(allProjects);
     return allProjects;
   } catch (error) {
     throw new Error(error.message);
