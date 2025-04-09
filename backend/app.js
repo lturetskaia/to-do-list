@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import bodyParser from "body-parser";
 import express from "express";
 
@@ -31,7 +30,6 @@ app.get("/projects", async (req, res) => {
   const tasks = await getAllTasks();
 
   if (projects && tasks) {
-    console.log(projects, tasks);
     const allProjectsData = [...projects];
     allProjectsData.map((project) => (project.tasks = []));
 
@@ -62,15 +60,12 @@ app.put("/projects/:id", async (req, res, next) => {
 
   // Add a new task
   if (projectData.task) {
-    console.log(projectData);
-
     const newTask = {
       ...projectData.task,
       project_id: projectId,
     };
 
     const result = await createTask(newTask);
-    console.log(result);
 
     if (result.insertId > 0) {
       return res.status(201).json({
@@ -89,9 +84,10 @@ app.put("/projects/:id", async (req, res, next) => {
       projectData.taskId,
       projectData.status
     );
-    console.log(result);
+
     if (result.changedRows === 1) {
       const updatedTask = await getTask(projectData.taskId);
+
       return res.status(201).json({
         message: `Task ${projectData.taskId} updated`,
         projectId: projectId,
@@ -118,7 +114,6 @@ app.put("/projects/:id", async (req, res, next) => {
         .status(404)
         .json({ message: "Unable to change project name or description." });
     }
-    console.log(result);
   }
 });
 
@@ -144,7 +139,6 @@ app.put("/projects", async (req, res) => {
 app.delete("/projects/:id", async (req, res, next) => {
   const projectId = req.params.id;
   const result = await deleteItem(projectId, "projects");
-  console.log(result);
 
   if (result.affectedRows === 1) {
     return res
@@ -161,33 +155,21 @@ app.delete("/projects/:id", async (req, res, next) => {
 
 // Delete a task
 app.delete("/projects/:id/:taskId", async (req, res, next) => {
-  const projectId = req.params.id;
   const taskId = req.params.taskId;
 
-  const data = await fs.readFile("./data/projects.json", "utf-8");
-  const updatedProjects = JSON.parse(data);
-  const projectIndex = updatedProjects.findIndex(
-    (project) => project.id === projectId
-  );
+  const result = await deleteItem(taskId, "tasks");
 
-  if (projectIndex === -1) {
-    return next();
+  if (result.affectedRows === 1) {
+    return res
+      .status(200)
+      .json({ message: "Task deleted", id: taskId, ok: true });
+  } else {
+    res.status(404).json({ message: "Failed to delete the selected task." });
   }
 
-  const taskIndex = updatedProjects[projectIndex].tasks.findIndex(
-    (task) => task.id == taskId
-  );
-
-  if (taskIndex === -1) {
-    return next();
-  }
-
-  updatedProjects[projectIndex].tasks.splice(taskIndex, 1);
-
-  await fs.writeFile("./data/projects.json", JSON.stringify(updatedProjects));
-  return res
-    .status(200)
-    .json({ message: "Task deleted", id: projectId, taskId: taskId, ok: true });
+  // if (projectIndex === -1) {
+  //   return next();
+  // }
 });
 
 // 404
