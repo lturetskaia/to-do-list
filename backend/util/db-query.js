@@ -72,9 +72,10 @@ export async function deleteItem(id, table) {
 }
 
 export async function deleteAllTasks(project_id) {
-  const result = await connection.query(`DELETE FROM tasks WHERE project_id=?`, [
-    project_id,
-  ]);
+  const result = await connection.query(
+    `DELETE FROM tasks WHERE project_id=?`,
+    [project_id]
+  );
 
   return result[0];
 }

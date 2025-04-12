@@ -29,8 +29,7 @@ app.use((req, res, next) => {
 app.get("/projects", async (req, res) => {
   const projects = await getAllProjects();
   const tasks = await getAllTasks();
-  console.log(projects);
-  console.log(tasks);
+
   if (projects && tasks) {
     const allProjectsData = [...projects];
     allProjectsData.map((project) => (project.tasks = []));
@@ -39,32 +38,26 @@ app.get("/projects", async (req, res) => {
       const projectIndex = projects.findIndex(
         (project) => project.id === task.project_id
       );
-      console.log(projectIndex);
+
       if (projectIndex >= 0) {
         allProjectsData[projectIndex].tasks.push(task);
-      } else {
-        console.log("Error! Undeleted tasks found!");
       }
     });
 
-    res.json(allProjectsData);
+    res.status(200).json(allProjectsData);
   } else {
     res.status(404).json({ message: "Unable to fetch projects" });
   }
 });
 
 // Update project data
-app.put("/projects/:id", async (req, res, next) => {
+app.put("/projects/:id", async (req, res) => {
   const projectId = req.params.id;
   const projectData = req.body.projectData;
 
-  // error- no project data sent
-  if (!projectData) {
+  if (!projectData || !projectId) {
     return res.status(400).json({ message: "Missing Data!" });
   }
-
-  // !! check if the project exists !!
-
   // Add a new task
   if (projectData.task) {
     const newTask = {
@@ -76,7 +69,7 @@ app.put("/projects/:id", async (req, res, next) => {
 
     if (result.insertId > 0) {
       return res.status(201).json({
-        message: `Tasks updated`,
+        message: `Added a new task`,
         taskId: result.insertId,
       });
     } else {
@@ -84,9 +77,6 @@ app.put("/projects/:id", async (req, res, next) => {
     }
   } else if (projectData.status && projectData.taskId) {
     // change status - active or completed
-
-    // !! check if the task exists !!
-
     const result = await updateTaskStatus(
       projectData.taskId,
       projectData.status
@@ -143,8 +133,13 @@ app.put("/projects", async (req, res) => {
 });
 
 // Delete a project
-app.delete("/projects/:id", async (req, res, next) => {
+app.delete("/projects/:id", async (req, res) => {
   const projectId = req.params.id;
+
+  if (!projectId) {
+    return res.status(400).json({ message: "Missing Data!" });
+  }
+
   const resultProjects = await deleteItem(projectId, "projects");
   //delete all task associated with the projectId
   const resultTasks = await deleteAllTasks(projectId);
@@ -156,14 +151,10 @@ app.delete("/projects/:id", async (req, res, next) => {
   } else {
     res.status(404).json({ message: "Failed to delete the selected project." });
   }
-
-  // if (!project) {
-  //   return next();
-  // }
 });
 
 // Delete a task
-app.delete("/projects/:id/:taskId", async (req, res, next) => {
+app.delete("/projects/:id/:taskId", async (req, res) => {
   const taskId = req.params.taskId;
 
   const result = await deleteItem(taskId, "tasks");
@@ -175,13 +166,8 @@ app.delete("/projects/:id/:taskId", async (req, res, next) => {
   } else {
     res.status(404).json({ message: "Failed to delete the selected task." });
   }
-
-  // if (projectIndex === -1) {
-  //   return next();
-  // }
 });
 
-// 404
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
     return next();
