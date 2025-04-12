@@ -3,7 +3,7 @@ export default function NoProjectSelected() {
     <>
       <h2>No Project Selected</h2>
 
-      <p>Choose an existing project or add a new one!</p>
+      <p>Choose an existing project or add a new one...</p>
     </>
   );
 }

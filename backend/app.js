@@ -46,7 +46,7 @@ app.get("/projects", async (req, res) => {
 
     res.status(200).json(allProjectsData);
   } else {
-    res.status(404).json({ message: "Unable to fetch projects" });
+    res.status(404).json({ message: "Unable to fetch projects." });
   }
 });
 
@@ -73,7 +73,7 @@ app.put("/projects/:id", async (req, res) => {
         taskId: result.insertId,
       });
     } else {
-      res.status(404).json({ message: "Unable to add a new task" });
+      res.status(404).json({ message: "Unable to add a new task." });
     }
   } else if (projectData.status && projectData.taskId) {
     // change status - active or completed
@@ -91,7 +91,7 @@ app.put("/projects/:id", async (req, res) => {
         tasks: updatedTask,
       });
     } else {
-      res.status(404).json({ message: "Unable to change task status" });
+      res.status(404).json({ message: "Unable to change task status." });
     }
   } else if (projectData.description) {
     // Update project name and/or description
@@ -101,7 +101,7 @@ app.put("/projects/:id", async (req, res) => {
       projectData.description
     );
 
-    if (result.changedRows === 1) {
+    if (result.warningStatus === 0) {
       return res.status(201).json({
         message: `Project ${projectId} edited`,
         id: projectId,
@@ -162,7 +162,7 @@ app.delete("/projects/:id/:taskId", async (req, res) => {
   if (result.affectedRows === 1) {
     return res
       .status(200)
-      .json({ message: "Task deleted", id: taskId, ok: true });
+      .json({ message: "Task deleted.", id: taskId, ok: true });
   } else {
     res.status(404).json({ message: "Failed to delete the selected task." });
   }

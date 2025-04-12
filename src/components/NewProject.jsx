@@ -5,7 +5,7 @@ import Button from "./UI/Button";
 import ModalContext from "./store/ModalContext";
 import { addNewProject } from "../http";
 import ProjectsContext from "./store/ProjectContext";
-import { inputIsNotValid } from "./util/validation";
+import { inputIsNotValid, isOverMaxLength } from "./util/validation";
 
 export default function NewProject() {
   const modalCtx = useContext(ModalContext);
@@ -46,31 +46,33 @@ export default function NewProject() {
     const fd = new FormData(event.target);
     const formData = Object.fromEntries(fd.entries());
 
+    if (
+      inputIsNotValid(formData.projectName, 3, 20) ||
+      isOverMaxLength(formData.projectDescription, 255)
+    ) {
+      return;
+    }
+
     const projectData = {
       name: formData.projectName,
       description: formData.projectDescription,
       tasks: [],
     };
-    console.log(projectData);
+
     try {
-      console.log("Sending project data...");
       const response = await addNewProject(projectData);
-      console.log(response);
 
       const project = { id: response.id, ...projectData };
       projectCtx.addNewProject(project);
       projectCtx.selectProject(response.id);
       modalCtx.hideProjectModal();
     } catch (error) {
-      console.log(error.message);
       setLoadingError(() => {
-        return { status: true, message: "Failed to add a new project" };
+        return { status: true, message: "Failed to add a new project." };
       });
     } finally {
       setIsPending(false);
     }
-
-    // add error management
   }
 
   function handleCloseModal() {
@@ -80,7 +82,6 @@ export default function NewProject() {
       return { status: true, message: "" };
     });
     setLoadingError("");
-    console.log(modalCtx);
 
     modalCtx.hideProjectModal();
   }

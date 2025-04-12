@@ -27,7 +27,6 @@ export default function SelectedProject() {
         const allProjects = await fetchAllProjects();
         projectsCtx.loadAllProjects(allProjects);
       } catch (error) {
-        console.log(error);
         setLoadingError({
           message:
             error.message + " Please try again later" ||
@@ -56,7 +55,6 @@ export default function SelectedProject() {
   }
 
   function handleActionError(error) {
-    console.log(error);
     setActionError({
       message:
         error.message + " Please try again later" ||
@@ -73,7 +71,6 @@ export default function SelectedProject() {
   }
 
   //error on project actions
-
   let errorClasses = "error-msg";
   let errorMessage = "";
   if (actionError) {

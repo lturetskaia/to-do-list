@@ -18,7 +18,6 @@ export default function ProjectsSidebar() {
     selectProject(id);
   }
 
-  console.log("Selected project id: " + selectedProject);
   return (
     <aside>
       <h2>My Projects</h2>

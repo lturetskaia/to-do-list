@@ -41,14 +41,16 @@ export default function TaskInput({ handleActionError }) {
     event.preventDefault();
     const fd = new FormData(event.target);
     const formData = Object.fromEntries(fd.entries());
-    //validation to be added
+
+    if (inputIsNotValid(formData.task, 3, 70)) {
+      return;
+    }
 
     const newTask = {
       task: { id: null, name: formData.task, date: null, status: "active" },
     };
 
     try {
-      console.log("Trying to add a new task");
       const response = await editProject(selectedProjectId, newTask);
 
       newTask.task.id = response.taskId;
@@ -64,7 +66,11 @@ export default function TaskInput({ handleActionError }) {
 
   return (
     <form onSubmit={handleSubmitTask} className="control-task-area">
-      <Button className={"filled-btn"} type="submit" disabled={isPending}>
+      <Button
+        className={"filled-btn"}
+        type="submit"
+        disabled={isPending || error.status}
+      >
         +
       </Button>
       <div className="control-task-input">
