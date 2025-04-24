@@ -1,5 +1,4 @@
 import { createContext, useEffect, useReducer } from "react";
-import { fetchAllProjects } from "../../http";
 
 const ProjectsContext = createContext({
   selectedProject: null,
@@ -18,11 +17,6 @@ function projectsReducer(state, action) {
     const fetchedProjects = [...action.projects];
     return { ...state, projects: fetchedProjects };
   }
-
-  // if (action.type === "FETCH_ALL") {
-  //   const fetchedProjects = [...action.projects];
-  //   return { ...state, projects: fetchedProjects };
-  // }
 
   if (action.type === "SELECT_PROJECT") {
     const selectedProjectId = action.id;
@@ -77,7 +71,6 @@ function projectsReducer(state, action) {
       );
 
       if (existingTask.length !== 0) {
-        console.log("The task already exists");
       } else {
         const updatedTasks = [
           ...updatedProjects[projectIndex].tasks,
@@ -94,8 +87,6 @@ function projectsReducer(state, action) {
     const allProjects = [...state.projects];
     const projectId = action.id;
     const taskId = action.taskId;
-
-    console.log(projectId, taskId);
 
     const projectIndex = allProjects.findIndex(
       (project) => project.id === projectId
@@ -119,16 +110,6 @@ export function ProjectsContextProvider({ children }) {
     projects: [],
   });
 
-  // useEffect(() => {
-  //   async function getData() {
-  //     const loadedProjects = await fetchAllProjects();
-  //     dispatchProjectDataAction({
-  //       type: "FETCH_ALL",
-  //       projects: loadedProjects,
-  //     });
-  //   }
-  //   getData();
-  // }, []);
 
   function loadAllProjects(allProjects) {
     dispatchProjectDataAction({

@@ -58,10 +58,7 @@ export default function TaskItem({ task, handleActionError }) {
             id="delete-task-btn"
             className={btnClasses}
             onClick={() => handleDeleteTask(task.id)}
-          >
-            {" "}
-            X
-          </Button>
+          ></Button>
         </div>
       </li>{" "}
     </>

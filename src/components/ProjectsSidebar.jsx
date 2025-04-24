@@ -20,8 +20,8 @@ export default function ProjectsSidebar() {
 
   return (
     <aside>
-      <h2>My Projects</h2>
-      <Button className="filled-btn" onClick={handleNewProjectModal}>
+      <h2>MY PROJECTS</h2>
+      <Button className="filled-btn new-project" onClick={handleNewProjectModal}>
         {" "}
         + New Project
       </Button>

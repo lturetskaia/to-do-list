@@ -104,7 +104,7 @@ export default function SelectedProject() {
       <>
         <header>
           <div className="control-project-header">
-            <h2>{selectedProject[0].name}</h2>
+            <h2 className="project-header">{selectedProject[0].name}</h2>
             <div className="control-buttons">
               <Button className="filled-btn" onClick={handleEditProjectModal}>
                 Edit
