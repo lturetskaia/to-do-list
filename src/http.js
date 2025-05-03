@@ -9,6 +9,7 @@ export async function fetchAllProjects() {
     const allProjects = await response.json();
     return allProjects;
   } catch (error) {
+    console.log(error.message);
     throw new Error(error.message);
   }
 }
