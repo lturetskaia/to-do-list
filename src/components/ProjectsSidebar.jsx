@@ -18,11 +18,10 @@ export default function ProjectsSidebar() {
     selectProject(id);
   }
 
-  console.log("Selected project id: " + selectedProject);
   return (
     <aside>
-      <h2>My Projects</h2>
-      <Button className="filled-btn" onClick={handleNewProjectModal}>
+      <h2>MY PROJECTS</h2>
+      <Button className="filled-btn new-project" onClick={handleNewProjectModal}>
         {" "}
         + New Project
       </Button>

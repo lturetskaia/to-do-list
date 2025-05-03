@@ -70,29 +70,22 @@ export default function EditProject() {
 
     const fd = new FormData(event.target);
     const formData = Object.fromEntries(fd.entries());
-    console.log(formData.projectDescription);
     const projectData = {
       name: formData.projectName,
       description: formData.projectDescription || "",
     };
 
     try {
-      console.log("Editing the project ... ");
-
       const response = await editProject(selectedProject.id, projectData);
-      console.log(response);
-
       projectCtx.updateProject(selectedProject.id, projectData);
       modalCtx.hideProjectModal();
     } catch (error) {
-      console.log(error);
       setLoadingError(() => {
         return { status: true, message: error.message };
       });
     } finally {
       setIsPending(false);
     }
-    // add error management
   }
 
   function handleCloseModal() {

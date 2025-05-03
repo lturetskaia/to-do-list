@@ -18,30 +18,18 @@ export default function TaskItem({ task, handleActionError }) {
     const data = { taskId: task.id, status: status };
 
     try {
-      console.log("Updating task status" + data);
       const response = await editProject(projectCtx.selectedProject, data);
-      console.log(response);
       setTaskStatus(status);
     } catch (error) {
-      console.log(error.message);
       handleActionError(error);
     }
   }
 
   async function handleDeleteTask() {
-    console.log(
-      "Deleting the task. ID:" +
-        projectCtx.selectedProject +
-        "   " +
-        "TaskID: " +
-        task.id
-    );
-
     try {
       const response = await deleteTask(projectCtx.selectedProject, task.id);
       projectCtx.deleteTask(projectCtx.selectedProject, task.id);
     } catch (error) {
-      console.log(error.message);
       handleActionError(error);
     }
   }
@@ -70,10 +58,7 @@ export default function TaskItem({ task, handleActionError }) {
             id="delete-task-btn"
             className={btnClasses}
             onClick={() => handleDeleteTask(task.id)}
-          >
-            {" "}
-            X
-          </Button>
+          ></Button>
         </div>
       </li>{" "}
     </>

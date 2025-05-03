@@ -27,10 +27,9 @@ export default function SelectedProject() {
         const allProjects = await fetchAllProjects();
         projectsCtx.loadAllProjects(allProjects);
       } catch (error) {
-        console.log(error);
         setLoadingError({
           message:
-            error.message + " Please try again later" ||
+            error.message + ". Please try again later..." ||
             "Could not fetch projects, please try again later.",
         });
       } finally {
@@ -56,11 +55,10 @@ export default function SelectedProject() {
   }
 
   function handleActionError(error) {
-    console.log(error);
     setActionError({
       message:
-        error.message + " Please try again later" ||
-        "Unable to complete the action, please try again later.",
+        error.message + ". Please try again later..." ||
+        "Unable to fetch projects. Please try again later.",
     });
 
     setTimeout(() => {
@@ -73,7 +71,6 @@ export default function SelectedProject() {
   }
 
   //error on project actions
-
   let errorClasses = "error-msg";
   let errorMessage = "";
   if (actionError) {
@@ -107,7 +104,7 @@ export default function SelectedProject() {
       <>
         <header>
           <div className="control-project-header">
-            <h2>{selectedProject[0].name}</h2>
+            <h2 className="project-header">{selectedProject[0].name}</h2>
             <div className="control-buttons">
               <Button className="filled-btn" onClick={handleEditProjectModal}>
                 Edit
