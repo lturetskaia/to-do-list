@@ -1,6 +1,9 @@
+
 export async function fetchAllProjects() {
   try {
-    const response = await fetch("http://localhost:3000/projects");
+    const response = await fetch(
+      import.meta.env.VITE_SERVER_URL + "/projects"
+    );
 
     if (!response.ok) {
       const resError = await response.json();
@@ -9,20 +12,22 @@ export async function fetchAllProjects() {
     const allProjects = await response.json();
     return allProjects;
   } catch (error) {
-    console.log(error.message);
     throw new Error(error.message);
   }
 }
 
 export async function addNewProject(newProject) {
   try {
-    const response = await fetch("http://localhost:3000/projects", {
-      method: "PUT",
-      body: JSON.stringify({ newProject }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      import.meta.env.VITE_SERVER_URL + "/projects",
+      {
+        method: "PUT",
+        body: JSON.stringify({ newProject }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       const resError = await response.json();
@@ -37,7 +42,7 @@ export async function addNewProject(newProject) {
 
 export async function editProject(id, projectData) {
   try {
-    const response = await fetch(`http://localhost:3000/projects/${id}`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/projects/${id}`, {
       method: "PUT",
       body: JSON.stringify({ projectData }),
       headers: {
@@ -60,7 +65,7 @@ export async function editProject(id, projectData) {
 export async function deleteTask(id, taskId) {
   try {
     const response = await fetch(
-      `http://localhost:3000/projects/${id}/${taskId}`,
+      `${import.meta.env.VITE_SERVER_URL}/${id}/${taskId}`,
       {
         method: "DELETE",
         headers: {
@@ -83,7 +88,7 @@ export async function deleteTask(id, taskId) {
 
 export async function deleteProject(id) {
   try {
-    const response = await fetch(`http://localhost:3000/projects/${id}`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/projects/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
