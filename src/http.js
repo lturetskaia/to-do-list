@@ -65,7 +65,7 @@ export async function editProject(id, projectData) {
 export async function deleteTask(id, taskId) {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/${id}/${taskId}`,
+      `${import.meta.env.VITE_SERVER_URL}/projects/${id}/${taskId}`,
       {
         method: "DELETE",
         headers: {
