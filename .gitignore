@@ -17,4 +17,5 @@ backend/.env
 
 #build directories
 /dist
+/dist-prev
 
