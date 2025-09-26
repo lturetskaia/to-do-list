@@ -27,10 +27,11 @@ app.use((req, res, next) => {
 
 // Fetch all projects
 app.get("/projects", async (req, res) => {
-  const projects = await getAllProjects();
-  const tasks = await getAllTasks();
+  try {
+    const projects = await getAllProjects();
 
-  if (projects && tasks) {
+    const tasks = await getAllTasks();
+
     const allProjectsData = [...projects];
     allProjectsData.map((project) => (project.tasks = []));
 
@@ -45,7 +46,7 @@ app.get("/projects", async (req, res) => {
     });
 
     res.status(200).json(allProjectsData);
-  } else {
+  } catch (error) {
     res.status(404).json({ message: "Unable to fetch projects." });
   }
 });
@@ -95,7 +96,6 @@ app.put("/projects/:id", async (req, res) => {
     }
   } else {
     // Update project name and/or description
-    console.log("Project uipdate");
     const result = await updateProject(
       projectId,
       projectData.name,
