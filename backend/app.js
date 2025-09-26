@@ -144,16 +144,15 @@ app.delete("/projects/:id", async (req, res) => {
   if (!projectId) {
     return res.status(400).json({ message: "Missing Data!" });
   }
+  try {
+    const resultProjects = await deleteItem(projectId, "projects");
+    //delete all tasks associated with the projectId
+    const resultTasks = await deleteAllTasks(projectId);
 
-  const resultProjects = await deleteItem(projectId, "projects");
-  //delete all task associated with the projectId
-  const resultTasks = await deleteAllTasks(projectId);
-
-  if (resultProjects.affectedRows === 1) {
     return res
       .status(200)
       .json({ message: "Project deleted", id: projectId, ok: true });
-  } else {
+  } catch (error) {
     res.status(404).json({ message: "Failed to delete the selected project." });
   }
 });
@@ -161,14 +160,13 @@ app.delete("/projects/:id", async (req, res) => {
 // Delete a task
 app.delete("/projects/:id/:taskId", async (req, res) => {
   const taskId = req.params.taskId;
+  try {
+    const result = await deleteItem(taskId, "tasks");
 
-  const result = await deleteItem(taskId, "tasks");
-
-  if (result.affectedRows === 1) {
     return res
       .status(200)
       .json({ message: "Task deleted.", id: taskId, ok: true });
-  } else {
+  } catch (error) {
     res.status(404).json({ message: "Failed to delete the selected task." });
   }
 });
