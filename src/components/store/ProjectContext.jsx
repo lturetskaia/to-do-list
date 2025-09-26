@@ -39,7 +39,7 @@ function projectsReducer(state, action) {
       (project) => project.id === id
     );
 
-    if (projectData.description && projectData.name) {
+    if (projectData.name) {
       updatedProjects[projectIndex].name = projectData.name;
       updatedProjects[projectIndex].description = projectData.description;
     }
