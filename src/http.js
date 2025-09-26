@@ -21,7 +21,7 @@ export async function addNewProject(newProject) {
     const response = await fetch(
       import.meta.env.VITE_SERVER_URL + "/projects",
       {
-        method: "PUT",
+        method: "POST",
         body: JSON.stringify({ newProject }),
         headers: {
           "Content-Type": "application/json",

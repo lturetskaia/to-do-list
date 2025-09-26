@@ -115,7 +115,7 @@ app.put("/projects/:id", async (req, res) => {
 });
 
 // Add a new project
-app.put("/projects", async (req, res) => {
+app.post("/projects", async (req, res) => {
   const projectData = req.body.newProject;
   if (!projectData || !projectData.name) {
     return res.status(400).json({ message: "Missing Data!" });
