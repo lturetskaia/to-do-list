@@ -68,7 +68,6 @@ app.put("/projects/:id", async (req, res) => {
 
     try {
       const result = await createTask(newTask);
-      console.log(newTask,result);
 
       return res.status(201).json({
         message: `Added a new task`,
@@ -79,20 +78,24 @@ app.put("/projects/:id", async (req, res) => {
     }
   } else if (projectData.status && projectData.taskId) {
     // change status - active or completed
-    const result = await updateTaskStatus(
-      projectData.taskId,
-      projectData.status
-    );
+    try {
+      const result = await updateTaskStatus(
+        projectData.taskId,
+        projectData.status
+      );
 
-    if (result.changedRows === 1) {
-      const updatedTask = await getTask(projectData.taskId);
+      if (result.changedRows === 1) {
+        const updatedTask = await getTask(projectData.taskId);
 
-      return res.status(201).json({
-        message: `Task ${projectData.taskId} updated`,
-        projectId: projectId,
-        tasks: updatedTask,
-      });
-    } else {
+        return res.status(201).json({
+          message: `Task ${projectData.taskId} updated`,
+          projectId: projectId,
+          tasks: updatedTask,
+        });
+      } else {
+        res.status(404).json({ message: "Unable to find the task." });
+      }
+    } catch (error) {
       res.status(404).json({ message: "Unable to change task status." });
     }
   } else {
