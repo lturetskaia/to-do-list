@@ -100,18 +100,18 @@ app.put("/projects/:id", async (req, res) => {
     }
   } else {
     // Update project name and/or description
-    const result = await updateProject(
-      projectId,
-      projectData.name,
-      projectData.description
-    );
+    try {
+      const result = await updateProject(
+        projectId,
+        projectData.name,
+        projectData.description
+      );
 
-    if (result.warningStatus === 0) {
       return res.status(201).json({
         message: `Project ${projectId} edited`,
         id: projectId,
       });
-    } else {
+    } catch (error) {
       res
         .status(404)
         .json({ message: "Unable to change project name or description." });
