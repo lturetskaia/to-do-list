@@ -29,7 +29,7 @@ export default function SelectedProject() {
       } catch (error) {
         setLoadingError({
           message:
-            error.message + ". Please try again later..." ||
+            error.message + " Please try again later..." ||
             "Could not fetch projects, please try again later.",
         });
       } finally {
@@ -57,7 +57,7 @@ export default function SelectedProject() {
   function handleActionError(error) {
     setActionError({
       message:
-        error.message + ". Please try again later..." ||
+        error.message + " Please try again later..." ||
         "Unable to fetch projects. Please try again later.",
     });
 
