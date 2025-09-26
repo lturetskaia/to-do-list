@@ -66,14 +66,15 @@ app.put("/projects/:id", async (req, res) => {
       project_id: projectId,
     };
 
-    const result = await createTask(newTask);
+    try {
+      const result = await createTask(newTask);
+      console.log(newTask,result);
 
-    if (result.insertId > 0) {
       return res.status(201).json({
         message: `Added a new task`,
         taskId: result.insertId,
       });
-    } else {
+    } catch (error) {
       res.status(404).json({ message: "Unable to add a new task." });
     }
   } else if (projectData.status && projectData.taskId) {
