@@ -14,6 +14,10 @@ export default function NewProject() {
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [inputError, setInputError] = useState({ status: true, message: "" });
+  const [textInputError, setTextInputError] = useState({
+    status: false,
+    message: "",
+  });
 
   const [isPending, setIsPending] = useState();
   const [loadingError, setLoadingError] = useState();
@@ -37,6 +41,19 @@ export default function NewProject() {
 
   function handleChangeDescription(event) {
     setProjectDescription(event.target.value);
+
+    if (inputIsNotValid(event.target.value, 0, 255)) {
+      setTextInputError(() => {
+        return {
+          status: true,
+          message: "Project description may contain up to 255 characters.",
+        };
+      });
+    } else {
+      setTextInputError(() => {
+        return { status: false, message: "" };
+      });
+    }
   }
 
   async function handleCreateProject(event) {
@@ -114,6 +131,7 @@ export default function NewProject() {
             errorMsg={inputError.message}
             value={projectName}
             onChange={handleChangeInput}
+            maxLength="20"
           />
         </div>
 
@@ -123,7 +141,9 @@ export default function NewProject() {
             name="projectDescription"
             type="textarea"
             value={projectDescription}
+            errorMsg={textInputError.message}
             onChange={handleChangeDescription}
+            maxLength="255"
           />
         </div>
 
@@ -135,7 +155,7 @@ export default function NewProject() {
             <Button
               className="filled-btn"
               type="submit"
-              disabled={inputError.status || isPending}
+              disabled={inputError.status || textInputError.status || isPending}
             >
               {saveBtnText}
             </Button>

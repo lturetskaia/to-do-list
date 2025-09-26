@@ -22,6 +22,7 @@ export default function Input({
       <>
         <label htmlFor={name}>{label}</label>
         <textarea id={name} name={name} value={value} {...props} />
+        <p className={errorClasses}> {errorMsg}</p>
       </>
     );
   }
