@@ -93,8 +93,9 @@ app.put("/projects/:id", async (req, res) => {
     } else {
       res.status(404).json({ message: "Unable to change task status." });
     }
-  } else if (projectData.description) {
+  } else {
     // Update project name and/or description
+    console.log("Project uipdate");
     const result = await updateProject(
       projectId,
       projectData.name,
