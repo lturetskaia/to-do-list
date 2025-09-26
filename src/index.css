@@ -1,13 +1,13 @@
 :root {
   --text-color: rgb(53, 73, 78);
   --text-color-faded: rgb(156, 156, 156);
-  --main-bg-color: rgba(213, 235, 230, 0.7);
+  --main-bg-color: rgba(166, 221, 209, .81);
   --side-bg-color: rgb(255, 255, 255);
   --backdrop-bg-color: rgba(167, 173, 173, 0.5);
-  --accent-color-green: rgb(189, 228, 222);
+  --accent-color-green: rgb(87, 149, 139);
   --accent-color-grey: rgba(212, 219, 218, 0.5);
   --accent-color-red: rgb(189, 82, 82);
-  --border-color: rgba(192, 228, 225, 0.8);
+  --border-color: rgba(93,177, 170, .52);
   --shadow-color: rgba(0, 0, 0, 0.125);
 }
 body {
@@ -15,7 +15,7 @@ body {
   font-family: "Century Gothic", sans-serif;
   font-size: 1rem;
   color: var(--text-color);
-  margin-top: 2rem;
+  margin: 2rem 0 0 2rem;
 }
 main {
   display: flex;
@@ -325,7 +325,7 @@ textarea {
     padding: none;
   }
   body {
-    margin-top: 1rem;
+    margin: 1rem 1rem 1rem 0;
   }
   main {
     flex-direction: column;
