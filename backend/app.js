@@ -126,13 +126,13 @@ app.post("/projects", async (req, res) => {
     return res.status(400).json({ message: "Missing Data!" });
   }
 
-  const result = await createProject(projectData);
+  try {
+    const result = await createProject(projectData);
 
-  if (result.insertId > 0) {
     return res
       .status(201)
       .json({ message: "New project added!", id: result.insertId });
-  } else {
+  } catch (error) {
     res.status(404).json({ message: "Unable to add a new project." });
   }
 });
