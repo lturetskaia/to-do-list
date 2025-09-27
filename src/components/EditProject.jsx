@@ -24,6 +24,10 @@ export default function EditProject() {
 
   const [loadingError, setLoadingError] = useState();
   const [isPending, setIsPending] = useState(false);
+  const [textInputError, setTextInputError] = useState({
+    status: false,
+    message: "",
+  });
 
   useEffect(() => {
     setEditedProject({
@@ -40,7 +44,7 @@ export default function EditProject() {
         name: editedProjectName,
       };
     });
-    //input validation
+    //project name validation
     if (event.target.value.length < 3 || event.target.value.length > 20) {
       setInputError(() => {
         return {
@@ -62,6 +66,19 @@ export default function EditProject() {
         description: editedProjectDescription,
       };
     });
+    //description validation
+    if (event.target.value.length > 255) {
+      setTextInputError(() => {
+        return {
+          status: true,
+          message: "Project description may contain up to 255 characters.",
+        };
+      });
+    } else {
+      setTextInputError(() => {
+        return { status: false, message: "" };
+      });
+    }
   }
 
   async function handleEditProject(event) {
@@ -102,12 +119,11 @@ export default function EditProject() {
     modalCtx.hideProjectModal();
   }
 
-  let saveBtnText = 'Save';
+  let saveBtnText = "Save";
   if (isPending) {
-    saveBtnText = 'Saving ...';
-
-  } 
-  let errorMessage; 
+    saveBtnText = "Saving ...";
+  }
+  let errorMessage;
   if (loadingError) {
     errorMessage = (
       <p className="error-msg visible">Failed to save the project</p>
@@ -129,6 +145,7 @@ export default function EditProject() {
             value={editedProject.name}
             onChange={handleChangeName}
             errorMsg={inputError.message}
+            maxLength="20"
           />
         </div>
 
@@ -139,6 +156,8 @@ export default function EditProject() {
             type="textarea"
             value={editedProject.description}
             onChange={handleChangeDescription}
+            errorMsg={textInputError.message}
+            maxLength="255"
           />
         </div>
         <div className="control-input">
@@ -149,7 +168,7 @@ export default function EditProject() {
             <Button
               className="filled-btn"
               type="submit"
-              disabled={inputError.status || isPending}
+              disabled={inputError.status || textInputError.status || isPending}
             >
               {saveBtnText}
             </Button>

@@ -112,6 +112,7 @@ button#delete-task-btn:hover {
   background-color: var(--accent-color-grey);
 }
 
+
 button:focus-visible {
   outline: solid 2px rgb(140, 249, 212);
 }
@@ -127,6 +128,11 @@ button.new-project {
 
 button.filled-btn:hover {
   background-color: var(--accent-color-green);
+}
+
+button:disabled,
+button:hover[disabled] {
+  background-color: var(--accent-color-grey);
 }
 
 button.project-btn {

@@ -27,10 +27,11 @@ app.use((req, res, next) => {
 
 // Fetch all projects
 app.get("/projects", async (req, res) => {
-  const projects = await getAllProjects();
-  const tasks = await getAllTasks();
+  try {
+    const projects = await getAllProjects();
 
-  if (projects && tasks) {
+    const tasks = await getAllTasks();
+
     const allProjectsData = [...projects];
     allProjectsData.map((project) => (project.tasks = []));
 
@@ -45,7 +46,7 @@ app.get("/projects", async (req, res) => {
     });
 
     res.status(200).json(allProjectsData);
-  } else {
+  } catch (error) {
     res.status(404).json({ message: "Unable to fetch projects." });
   }
 });
@@ -65,48 +66,52 @@ app.put("/projects/:id", async (req, res) => {
       project_id: projectId,
     };
 
-    const result = await createTask(newTask);
+    try {
+      const result = await createTask(newTask);
 
-    if (result.insertId > 0) {
       return res.status(201).json({
         message: `Added a new task`,
         taskId: result.insertId,
       });
-    } else {
+    } catch (error) {
       res.status(404).json({ message: "Unable to add a new task." });
     }
   } else if (projectData.status && projectData.taskId) {
     // change status - active or completed
-    const result = await updateTaskStatus(
-      projectData.taskId,
-      projectData.status
-    );
+    try {
+      const result = await updateTaskStatus(
+        projectData.taskId,
+        projectData.status
+      );
 
-    if (result.changedRows === 1) {
-      const updatedTask = await getTask(projectData.taskId);
+      if (result.changedRows === 1) {
+        const updatedTask = await getTask(projectData.taskId);
 
-      return res.status(201).json({
-        message: `Task ${projectData.taskId} updated`,
-        projectId: projectId,
-        tasks: updatedTask,
-      });
-    } else {
+        return res.status(201).json({
+          message: `Task ${projectData.taskId} updated`,
+          projectId: projectId,
+          tasks: updatedTask,
+        });
+      } else {
+        res.status(404).json({ message: "Unable to find the task." });
+      }
+    } catch (error) {
       res.status(404).json({ message: "Unable to change task status." });
     }
-  } else if (projectData.description) {
+  } else {
     // Update project name and/or description
-    const result = await updateProject(
-      projectId,
-      projectData.name,
-      projectData.description
-    );
+    try {
+      const result = await updateProject(
+        projectId,
+        projectData.name,
+        projectData.description
+      );
 
-    if (result.warningStatus === 0) {
       return res.status(201).json({
         message: `Project ${projectId} edited`,
         id: projectId,
       });
-    } else {
+    } catch (error) {
       res
         .status(404)
         .json({ message: "Unable to change project name or description." });
@@ -121,13 +126,13 @@ app.post("/projects", async (req, res) => {
     return res.status(400).json({ message: "Missing Data!" });
   }
 
-  const result = await createProject(projectData);
+  try {
+    const result = await createProject(projectData);
 
-  if (result.insertId > 0) {
     return res
       .status(201)
       .json({ message: "New project added!", id: result.insertId });
-  } else {
+  } catch (error) {
     res.status(404).json({ message: "Unable to add a new project." });
   }
 });
@@ -139,16 +144,15 @@ app.delete("/projects/:id", async (req, res) => {
   if (!projectId) {
     return res.status(400).json({ message: "Missing Data!" });
   }
+  try {
+    const resultProjects = await deleteItem(projectId, "projects");
+    //delete all tasks associated with the projectId
+    const resultTasks = await deleteAllTasks(projectId);
 
-  const resultProjects = await deleteItem(projectId, "projects");
-  //delete all task associated with the projectId
-  const resultTasks = await deleteAllTasks(projectId);
-
-  if (resultProjects.affectedRows === 1) {
     return res
       .status(200)
       .json({ message: "Project deleted", id: projectId, ok: true });
-  } else {
+  } catch (error) {
     res.status(404).json({ message: "Failed to delete the selected project." });
   }
 });
@@ -156,14 +160,13 @@ app.delete("/projects/:id", async (req, res) => {
 // Delete a task
 app.delete("/projects/:id/:taskId", async (req, res) => {
   const taskId = req.params.taskId;
+  try {
+    const result = await deleteItem(taskId, "tasks");
 
-  const result = await deleteItem(taskId, "tasks");
-
-  if (result.affectedRows === 1) {
     return res
       .status(200)
       .json({ message: "Task deleted.", id: taskId, ok: true });
-  } else {
+  } catch (error) {
     res.status(404).json({ message: "Failed to delete the selected task." });
   }
 });
